@@ -67,46 +67,52 @@ mod tests {
 
     #[test]
     fn iter() {
-        let map = HashMap::<usize, usize>::new();
+        loom::model(|| {
+            let map = HashMap::<usize, usize>::new();
 
-        let guard = epoch::pin();
-        map.insert(1, 42, &guard);
-        map.insert(2, 84, &guard);
+            let guard = epoch::pin();
+            map.insert(1, 42, &guard);
+            map.insert(2, 84, &guard);
 
-        let guard = epoch::pin();
-        assert_eq!(
-            map.iter(&guard).collect::<HashSet<(&usize, &usize)>>(),
-            HashSet::from_iter(vec![(&1, &42), (&2, &84)])
-        );
+            let guard = epoch::pin();
+            assert_eq!(
+                map.iter(&guard).collect::<HashSet<(&usize, &usize)>>(),
+                HashSet::from_iter(vec![(&1, &42), (&2, &84)])
+            );
+        });
     }
 
     #[test]
     fn keys() {
-        let map = HashMap::<usize, usize>::new();
+        loom::model(|| {
+            let map = HashMap::<usize, usize>::new();
 
-        let guard = epoch::pin();
-        map.insert(1, 42, &guard);
-        map.insert(2, 84, &guard);
+            let guard = epoch::pin();
+            map.insert(1, 42, &guard);
+            map.insert(2, 84, &guard);
 
-        let guard = epoch::pin();
-        assert_eq!(
-            map.keys(&guard).collect::<HashSet<&usize>>(),
-            HashSet::from_iter(vec![&1, &2])
-        );
+            let guard = epoch::pin();
+            assert_eq!(
+                map.keys(&guard).collect::<HashSet<&usize>>(),
+                HashSet::from_iter(vec![&1, &2])
+            );
+        });
     }
 
     #[test]
     fn values() {
-        let map = HashMap::<usize, usize>::new();
+        loom::model(|| {
+            let map = HashMap::<usize, usize>::new();
 
-        let mut guard = epoch::pin();
-        map.insert(1, 42, &guard);
-        map.insert(2, 84, &guard);
-        guard.repin();
+            let mut guard = epoch::pin();
+            map.insert(1, 42, &guard);
+            map.insert(2, 84, &guard);
+            guard.repin();
 
-        assert_eq!(
-            map.values(&guard).collect::<HashSet<&usize>>(),
-            HashSet::from_iter(vec![&42, &84])
-        );
+            assert_eq!(
+                map.values(&guard).collect::<HashSet<&usize>>(),
+                HashSet::from_iter(vec![&42, &84])
+            );
+        });
     }
 }

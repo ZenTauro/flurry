@@ -7,6 +7,14 @@ use std::collections::hash_map::RandomState;
 use std::fmt::{self, Debug, Formatter};
 use std::hash::{BuildHasher, Hash, Hasher};
 use std::iter::FromIterator;
+
+#[cfg(debug_assertions)]
+use loom::sync::atomic::{AtomicUsize, Ordering};
+#[cfg(debug_assertions)]
+use std::sync::atomic::AtomicIsize;
+#[cfg(debug_assertions)]
+use std::sync::Once;
+#[cfg(not(debug_assertions))]
 use std::sync::{
     atomic::{AtomicIsize, AtomicUsize, Ordering},
     Once,
@@ -49,7 +57,13 @@ const MAX_RESIZERS: isize = (1 << (32 - RESIZE_STAMP_BITS)) - 1;
 const RESIZE_STAMP_SHIFT: usize = 32 - RESIZE_STAMP_BITS;
 
 static NCPU_INITIALIZER: Once = Once::new();
+#[cfg(not(debug_assertions))]
 static NCPU: AtomicUsize = AtomicUsize::new(0);
+
+#[cfg(debug_assertions)]
+lazy_static! {
+    static ref NCPU: AtomicUsize = AtomicUsize::new(0);
+}
 
 /// A concurrent hash table.
 ///
