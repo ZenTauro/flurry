@@ -1,13 +1,16 @@
 use crossbeam_epoch as epoch;
 use flurry::*;
+use loom_macro::wrapper;
+
+#[cfg(all(loom, test))]
 use loom::sync::Arc;
+#[cfg(all(loom, test))]
 use loom::thread;
 
 #[test]
+#[wrapper]
 fn new() {
-    loom::model(|| {
-        let _map = HashMap::<usize, usize>::new();
-    });
+    let _map = HashMap::<usize, usize>::new();
 }
 
 #[test]

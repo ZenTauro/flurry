@@ -8,13 +8,14 @@ use std::fmt::{self, Debug, Formatter};
 use std::hash::{BuildHasher, Hash, Hasher};
 use std::iter::FromIterator;
 
-#[cfg(debug_assertions)]
+#[cfg(all(loom, test))]
+use lazy_static::lazy_static;
+#[cfg(all(loom, test))]
 use loom::sync::atomic::{AtomicUsize, Ordering};
-#[cfg(debug_assertions)]
-use std::sync::atomic::AtomicIsize;
-#[cfg(debug_assertions)]
-use std::sync::Once;
-#[cfg(not(debug_assertions))]
+#[cfg(all(loom, test))]
+use std::sync::{atomic::AtomicIsize, Once};
+
+#[cfg(not(all(loom, test)))]
 use std::sync::{
     atomic::{AtomicIsize, AtomicUsize, Ordering},
     Once,
@@ -57,10 +58,10 @@ const MAX_RESIZERS: isize = (1 << (isize_bits!() - RESIZE_STAMP_BITS)) - 1;
 const RESIZE_STAMP_SHIFT: usize = isize_bits!() - RESIZE_STAMP_BITS;
 
 static NCPU_INITIALIZER: Once = Once::new();
-#[cfg(not(debug_assertions))]
+#[cfg(not(all(loom, test)))]
 static NCPU: AtomicUsize = AtomicUsize::new(0);
 
-#[cfg(debug_assertions)]
+#[cfg(all(loom, test))]
 lazy_static! {
     static ref NCPU: AtomicUsize = AtomicUsize::new(0);
 }

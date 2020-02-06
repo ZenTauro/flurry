@@ -23,6 +23,7 @@ maintenance = { status = "experimental" }
 crossbeam-epoch = "0.8"
 parking_lot = "0.10"
 num_cpus = "1.12.0"
+loom_macro = { path = "loom_macro" }
 
 [dev-dependencies]
 rand = "0.7"
